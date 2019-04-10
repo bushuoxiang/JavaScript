@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			.wrap{
+				position: relative;
+				width: 1000px;
+			}
+			.progress{
+				width: 1000px;
+				height: 5px;
+				background-color: gray;
+				//position: relative;
+			}
+			.percent{
+				width: 0px;
+				height: 4px;
+				background-color: red;
+			}
+			.danmu{
+				position: absolute;
+				top: 30px;
+				left: 100%;
+				color: white;
+				white-space: nowrap;
+				transition: all 5s linear;
+			}
+			.danmu.active{
+				left: -1000px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="wrap">
+			<video id='video' src="./skin.mp4" width="1000px"></video>
+			<div class="control-bar">
+				<!--时间展示-->
+				<div class="time-display">
+					<span id="current"></span> / <span id="duration"></span>
+				</div>
+				<!--进度条展示-->
+				<div class="progress">
+					<div class="percent" id="percent">
+						
+					</div>
+					
+				</div>
+				<!--音量控制-->
+				<input type="range" name="" id="volume-control" value="" />
+				<!--全屏控制-->
+				<button type="button" id="fullScreen">fullScreen</button>
+			</div>
+			<p class="danmu">这个大爷真的骚</p>
+
+		</div>
+		<script src="video.js">
+			
+		</script>
+	</body>
+
+</html>

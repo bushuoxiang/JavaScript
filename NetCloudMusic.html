@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<link href="#" rel="shortcut icon">
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			body,html{
+				height: 100%;
+				width: 100%;
+			}
+			body{
+				margin: 0px;
+				background-color: #F2F2F2;
+				overflow:hidden;
+			}
+			ul{
+				list-style: none;
+			}
+			.lrc-all-wrap{
+				height: 500px;
+				background-color: white;
+				padding-top: 1px;
+				overflow: hidden;
+				
+			}
+			#search{
+				width: 200px;
+				height: 25px;
+				border-radius: 5px;
+				border: 10px;
+			}
+			#lrc-wrap{
+				list-style: none;
+				margin-top: 240px;
+				text-align: center;
+				transition: all .3s;
+				
+			}
+			.lrc-item{
+				height: 40px;
+				
+				
+			}
+			#search-result-list{
+				background-color: #F2F2F2;
+				padding-left: 0px;
+				width: 300px;
+			}
+			.search-result-item{
+				background-color: #F2F2F2;
+				padding: 10px 0px;
+				padding-left: 20px;
+				width: 300px;
+			}
+			.search-result-item:hover{
+				background-color: lightblue;
+			}
+			.search-input-wrap{
+				position: absolute;
+				top: 20px;
+				right: 20px;
+			}
+			.search-result-wrap{
+				height: 600px;
+				overflow-y: scroll;
+				overflow-x: hidden;
+				position: absolute;
+				left: 100%;
+				transition: all .3s;
+			}
+			.search-result-wrap.active{
+				transform: translateX(-100%);
+			}
+			#playlist{
+				width: 70px;
+				height: 25px;
+				border-radius: 5px;
+				border: 1px;
+			}
+			#search-button{
+				width: 70px;
+				height: 25px;
+				border-radius: 5px;
+				border: 1px;
+				background-color: darkgray;
+			}
+			#search-button:hover{
+				background-color: gray;
+			}
+		</style>
+	</head>
+
+	<body>
+		<audio src="" id="audio" controls></audio>
+		<div class="search-input-wrap">
+			<input type="text" id="search" placeholder="请输入要搜索的内容"><button id="search-button" type="button">搜索</button>
+		</div>
+		<div class="search-result-wrap">
+			<ul id="search-result-list">
+				<li class="search-result-item">
+					<p><strong>学猫叫</strong></p>
+					<p>周杰伦 - 摩羯座</p>
+				</li>
+			</ul>
+		</div>
+		<div class="lrc-all-wrap">
+			<ul id="lrc-wrap">
+				
+			</ul>
+		</div>
+		
+	
+		<script type="text/javascript">
+			var get = function(url, callback) {
+				//onresdyStateChange 毁掉函数里调用了callback
+
+			}
+			var arr = [1, 2, 3, 4]
+			var handle = function() {
+
+			}
+			//			arr.forEach(/*传入一个函数作为参数*/)
+
+			//			var fn = function(){
+			//				handle(1,0)
+			//			}
+			//			fn()
+			//			arr.forEach(handle)
+//			var handle = function(item, index) {
+//				console.log(item, index)
+//			}
+//
+			var forEach = function(callback) {
+				callback(1, 2)
+			}
+			forEach(handle)
+
+			//为什么要包装get方法
+			//函数的概念
+
+			//a[key] == a['wd'] == a.wd
+			var get = function(url, data, callback) {
+				//get方法实现了什么过程  提交请求的过程
+				//get方法做一件事：发起一个ajax请求，一个get请求
+				var xhr = new XMLHttpRequest()
+				//最后的结果要求是字符串 所以我们先写一个空串用于接收结果
+				var params = '?'
+				for(var key in data) {
+					//key
+					//'wd' 'name'
+					var value = data[key]
+					params += key + '=' + value + '&'
+
+				}
+				params = params.slice(0, params.length - 1)
+				console.log(params)
+
+				xhr.open('GET', url + params, true)
+				xhr.send()
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4 && xhr.status == 200) {
+						if(typeof callback == 'function')
+						{
+							callback(JSON.parse(xhr.response))
+						}
+						
+					}
+				} //callback('13513535135351')
+			}
+			var search = function(keywords, callback) {
+				//search方法实现了什么过程
+				//发起一个针对search接口的get请求 获取数据
+				get('http://localhost:3000/search', {keywords:keywords}, function(e){
+					if(callback){
+						callback(e.result.songs)
+					}
+				})
+			}
+			var getMusicUrl = function(id,callback){
+				get('http://localhost:3000/song/url', {id:id}, function(e){
+					if(callback){
+						callback(e.data[0].url)
+					}
+				})
+			}
+			//歌词：包装一个获取歌词的方法
+			var getLrc = function(id,callback){
+				get('http://localhost:3000/lyric',{id:id},function(e){
+					if(callback){
+						callback(e.lrc.lyric)
+					}
+				})
+			}
+			var player = document.getElementById('audio')
+			var parseLrc = function(lrcString){
+				var parseTime = function(timeString){
+//					console.log(timeString)
+					var timeStringArr = timeString.split(':')
+					var min = parseInt(timeStringArr[0])
+					var s = parseFloat(timeStringArr[1])
+					var totalTime = (min*60+s)*1000
+					var timeNumber= 0
+					return parseInt(totalTime)
+				}
+				//第一步 把整个字符串转化为数组
+				var lrcStringArr = lrcString.split('\n')
+//				console.log(lrcStringArr)
+				//第二步 把每一行提出时间和歌词
+				var lrcObjArr = []
+				
+				for(var i=0;i<lrcStringArr.length;i++){
+					var line = lrcStringArr[i].split(']')
+					var time = parseTime(line[0].slice(1,line[0].length))
+					var content = line[1]
+					
+					//错误的处理  如果某一行错误
+					if(content == undefined || isNaN(time)) continue
+//					console.log(time,content)
+					lrcObjArr.push(
+						{
+							//因为要把字符串转化为数字类型，
+							time:time,
+							content:content
+						}
+					)
+				}
+//				console.log(lrcObjArr)
+				//第三步  把时间转化成number类型
+				return lrcObjArr
+			}
+			//歌词滚动 
+			var index = 0
+			var marginTop = 230
+			var lrcItems = null
+			var resetLrc = function(){
+				index = 0
+				marginTop = 230
+			}
+			var nowLrcObjeArr = []
+			var compareLrc = function(){
+				//在html中获取全部歌词
+//				var lrcItems = document.getElementsByClassName('lrc-item')
+				//对比时间  确定播放的是哪一个歌词
+				if(nowLrcObjeArr[index].time - player.currentTime * 1000 <300){
+					lrcItems[index].style.color = 'red'
+					lrcItems[index].style.fontSize = '30px'					
+					marginTop -= 40
+					lrcWrap.style.marginTop = marginTop +'px'
+//					lrcItems[index].style.size = '110px'
+					if(index  > 0)
+					{
+						lrcItems[index - 1].style.color = ''
+					lrcItems[index - 1].style.fontSize = ''
+					
+					}
+					index++
+				}
+				
+			}
+			
+			player.addEventListener('timeupdate',function(){
+				compareLrc()
+			})
+			
+			
+			//歌词填充
+			var lrctpl = '<li class="lrc-item">{%content%}</li>'
+			var lrcWrap = document.getElementById('lrc-wrap')
+			var fillLrc = function(lrcObjArr){
+				var html = ''
+				for (var i=0;i<lrcObjArr.length;i++){
+					html +=lrctpl.replace('{%content%}',lrcObjArr[i].content)
+				}
+				lrcWrap.innerHTML = html
+				nowLrcObjeArr = lrcObjArr
+				lrcItems = document.getElementsByClassName('lrc-item')
+			}
+			//1 把字符串转化成数组 ，数组的每一项为一句歌词
+			//2 吧数组的每一项提取程对象{time:‘02:01’ ， content ：''}
+			//3把time转化为数字类型
+//			search('skin',function(e){
+//				var songsId = e[0].id
+//				getMusicUrl(songsId,function(e){
+//					initPlayer(e)
+//					player.play()
+//				})
+//				getLrc(songsId,function(e){
+//					var lrc = parseLrc(e)
+//					console.log(lrc)
+//					fillLrc(lrc)
+//				})
+//			})
+//			getMusicUrl(526307800,function(e){
+//				console.log(e)
+//			})
+//			search('123', function(res) {
+//				console.log(res)
+//			})
+			var player = document.getElementById('audio')
+			var initPlayer = function(url){
+				player.src = url
+			}
+			//传入歌曲ID 开始播放，并且开始播放歌词
+			var play = function(id){
+				resetLrc()  //播放时 重置歌词
+				getMusicUrl(id,function(e){ //获取音乐链接，并且播放
+					initPlayer(e)
+					player.play()
+					hiddenSearchResult()
+					getLrc(id,function(e){//获取歌词 解析后填充
+						fillLrc(parseLrc(e))
+					})
+				})
+			}
+
+
+
+			//JS作为一个高级的编程语言把函数当参数传递
+		</script>
+		<script src="./playlist.js"></script>
+		<script src="./search.js"></script>
+	</body>
+
+</html>

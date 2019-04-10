@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Document</title>
+		<style type="text/css">
+			body{
+				background-color:  lightblue;
+			}
+		</style>
+	</head>
+	<body>
+		<!--在页面中引用视频-->
+		<!--<img src="" alt="" />-->
+		<video src="./skin.mp4" controls id="video"></video>
+		<!--页面中播放视频 自定义控制栏-->
+		<!--<div id="">
+			用来展示视频播放的总时长 和现在的播放时间
+			<span id="currentTime"></span>/<span id="duration"></span>
+		</div>-->
+		<script type="text/javascript">
+			window.onload = function(){
+				
+			}
+			//获取video标签
+			var video = document.getElementById('video')
+			//获取展示当前时间
+			var currentTimeDisplay = document.getElementById('currentTime')
+			//获取总时间展示
+			var durationTimeDisplay = document.getElementById('duration')
+			
+			//play播放  pause暂停视频
+			//currentTime 当前时间 通过设置currentTime 来改变视频播放的时间
+			//duration总时长
+			currentTimeDisplay.innerHTML = video.currentTime
+			durationTimeDisplay.innerHTML = video.duration
+			//volume【0,1】 可设置
+			
+			//事件
+			//canplay 可以播放
+			video.addEventListener('canplay',function(){
+				console.log('canplay 事件触发')
+				console.log(video.duration)
+				durationTimeDisplay.innerHTML = video.duration
+			})
+			//canplaythrough 浏览器认为可以流畅播放全部视频
+			video.addEventListener('canplaythrough',function(){
+				console.log('canplaythrought 触发')
+			})
+			video.addEventListener('playing',function(){
+				console.log('playing 事件触发')
+			})
+			video.addEventListener('pause',function(){
+				console.log('pause 事件触发')
+			})
+			video.addEventListener('timeupdate',function(){
+				console.log('currentTime事件触发')
+			})
+			video.addEventListener('timeupdate',function(){
+				console.log('timeupdate 事件触发')
+				console.log(video.currentTime)
+				currentTimeDisplay.innerHTML = video.currentTime
+			})
+		</script>
+	</body>
+</html>
